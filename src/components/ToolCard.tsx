@@ -24,8 +24,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({
 
   if (variant === 'compact') {
     return (
-      <TouchableOpacity
-        onPress={onPress}
+      <View
         style={[
           styles.compactCard,
           {
@@ -35,42 +34,44 @@ export const ToolCard: React.FC<ToolCardProps> = ({
             padding: spacing.md,
           },
         ]}
-        accessibilityRole="button"
-        accessibilityLabel={`${tool.name} aracını aç`}
       >
         <View style={styles.compactRow}>
-          <View
-            style={[
-              styles.iconWrapperSmall,
-              {
-                backgroundColor: theme.primaryContainer,
-                borderRadius: borderRadius.sm,
-              },
-            ]}
+          <TouchableOpacity
+            onPress={onPress}
+            style={styles.compactMain}
+            accessibilityRole="button"
+            accessibilityLabel={`${tool.name} aracını aç`}
           >
-            <Ionicons name={tool.icon} size={20} color={theme.onPrimaryContainer} />
-          </View>
+            <View
+              style={[
+                styles.iconWrapperSmall,
+                {
+                  backgroundColor: theme.primaryContainer,
+                  borderRadius: borderRadius.sm,
+                },
+              ]}
+            >
+              <Ionicons name={tool.icon} size={20} color={theme.onPrimaryContainer} />
+            </View>
 
-          <View style={styles.compactTextCol}>
-            <Text
-              style={[typography.titleSmall, { color: theme.textPrimary }]}
-              numberOfLines={1}
-            >
-              {tool.name}
-            </Text>
-            <Text
-              style={[typography.labelSmall, { color: theme.textSecondary }]}
-              numberOfLines={1}
-            >
-              {categoryName}
-            </Text>
-          </View>
+            <View style={styles.compactTextCol}>
+              <Text
+                style={[typography.titleSmall, { color: theme.textPrimary }]}
+                numberOfLines={1}
+              >
+                {tool.name}
+              </Text>
+              <Text
+                style={[typography.labelSmall, { color: theme.textSecondary }]}
+                numberOfLines={1}
+              >
+                {categoryName}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={(e) => {
-              e.stopPropagation?.();
-              toggleFavorite(tool.id);
-            }}
+            onPress={() => toggleFavorite(tool.id)}
             style={styles.favoriteButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             accessibilityRole="button"
@@ -85,13 +86,12 @@ export const ToolCard: React.FC<ToolCardProps> = ({
             />
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   }
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
+    <View
       style={[
         styles.card,
         {
@@ -102,78 +102,83 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           marginBottom: spacing.md,
         },
       ]}
-      accessibilityRole="button"
-      accessibilityLabel={`${tool.name} aracını aç`}
     >
-      <View style={styles.cardHeaderRow}>
-        <View style={styles.iconAndTitleRow}>
-          <View
-            style={[
-              styles.iconWrapper,
-              {
-                backgroundColor: theme.primaryContainer,
-                borderRadius: borderRadius.md,
-              },
-            ]}
-          >
-            <Ionicons name={tool.icon} size={24} color={theme.onPrimaryContainer} />
-          </View>
-
-          <View style={styles.titleContainer}>
-            <Text style={[typography.titleSmall, { color: theme.textPrimary }]}>
-              {tool.name}
-            </Text>
+      <TouchableOpacity
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${tool.name} aracını aç`}
+      >
+        <View style={styles.cardHeaderRow}>
+          <View style={styles.iconAndTitleRow}>
             <View
               style={[
-                styles.categoryBadge,
+                styles.iconWrapper,
                 {
-                  backgroundColor: theme.surfaceVariant,
-                  borderRadius: borderRadius.xs,
+                  backgroundColor: theme.primaryContainer,
+                  borderRadius: borderRadius.md,
                 },
               ]}
             >
-              <Text
+              <Ionicons name={tool.icon} size={24} color={theme.onPrimaryContainer} />
+            </View>
+
+            <View style={styles.titleContainer}>
+              <Text style={[typography.titleSmall, { color: theme.textPrimary }]}>
+                {tool.name}
+              </Text>
+              <View
                 style={[
-                  typography.labelSmall,
-                  { color: theme.textSecondary },
+                  styles.categoryBadge,
+                  {
+                    backgroundColor: theme.surfaceVariant,
+                    borderRadius: borderRadius.xs,
+                  },
                 ]}
               >
-                {categoryName}
-              </Text>
+                <Text
+                  style={[
+                    typography.labelSmall,
+                    { color: theme.textSecondary },
+                  ]}
+                >
+                  {categoryName}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
 
-        <TouchableOpacity
-          onPress={(e) => {
-            e.stopPropagation?.();
-            toggleFavorite(tool.id);
-          }}
-          style={styles.favoriteButton}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          accessibilityRole="button"
-          accessibilityLabel={
-            favorite ? `${tool.name} favorilerden çıkar` : `${tool.name} favorilere ekle`
-          }
+        <Text
+          style={[
+            typography.bodyMedium,
+            { color: theme.textSecondary, marginTop: spacing.sm },
+          ]}
+          numberOfLines={2}
         >
-          <Ionicons
-            name={favorite ? 'star' : 'star-outline'}
-            size={22}
-            color={favorite ? theme.star : theme.textMuted}
-          />
-        </TouchableOpacity>
-      </View>
+          {tool.description}
+        </Text>
+      </TouchableOpacity>
 
-      <Text
+      <TouchableOpacity
+        onPress={() => toggleFavorite(tool.id)}
         style={[
-          typography.bodyMedium,
-          { color: theme.textSecondary, marginTop: spacing.sm },
+          styles.favoriteButton,
+          styles.favoriteButtonAbsolute,
+          { top: spacing.md, right: spacing.md },
         ]}
-        numberOfLines={2}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        accessibilityRole="button"
+        accessibilityLabel={
+          favorite ? `${tool.name} favorilerden çıkar` : `${tool.name} favorilere ekle`
+        }
       >
-        {tool.description}
-      </Text>
-    </TouchableOpacity>
+        <Ionicons
+          name={favorite ? 'star' : 'star-outline'}
+          size={22}
+          color={favorite ? theme.star : theme.textMuted}
+        />
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -185,6 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingRight: 44,
   },
   iconAndTitleRow: {
     flexDirection: 'row',
@@ -213,12 +219,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  favoriteButtonAbsolute: {
+    position: 'absolute',
+  },
   compactCard: {
     borderWidth: 1,
     width: 220,
     marginRight: 12,
   },
   compactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  compactMain: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
   },
