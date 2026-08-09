@@ -225,7 +225,7 @@ export const IdPhotoMakerTool: React.FC = () => {
       <View style={[styles.headerCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
         <View style={styles.headerTitleRow}>
           <View style={[styles.iconBadge, { backgroundColor: theme.primaryContainer }]}>
-            <Ionicons name="person-crop-square-outline" size={24} color={theme.primary} />
+            <Ionicons name="person-outline" size={24} color={theme.primary} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.title, { color: theme.textPrimary }]}>Vesikalık &amp; Biyometrik Fotoğraf</Text>

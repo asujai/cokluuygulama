@@ -78,11 +78,11 @@ export async function applyRedactionsToImage(
             } else if (region.mode === 'blur') {
               ctx.save();
               // Box blur effect via multi-stage downscale/upscale blur or canvas filter
-              if ('filter' in ctx) {
+              if (typeof (ctx as unknown as { filter?: string }).filter !== 'undefined') {
                 const blurAmount = Math.max(12, Math.round(Math.min(rw, rh) / 10));
-                ctx.filter = `blur(${blurAmount}px)`;
+                (ctx as unknown as { filter: string }).filter = `blur(${blurAmount}px)`;
                 ctx.drawImage(canvas, rx, ry, rw, rh, rx, ry, rw, rh);
-                ctx.filter = 'none';
+                (ctx as unknown as { filter: string }).filter = 'none';
               } else {
                 // Fallback box blur using downscale-upscale
                 const tempCanvas = document.createElement('canvas');
@@ -141,7 +141,10 @@ export async function shareOrDownloadImage(
     let fileUri = uri;
     if (uri.startsWith('data:')) {
       const base64Data = uri.split(',')[1];
-      fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+      const cacheDir = FileSystem.Paths.cache.uri.endsWith('/')
+        ? FileSystem.Paths.cache.uri
+        : `${FileSystem.Paths.cache.uri}/`;
+      fileUri = `${cacheDir}${fileName}`;
       await FileSystem.writeAsStringAsync(fileUri, base64Data, {
         encoding: FileSystem.EncodingType.Base64,
       });

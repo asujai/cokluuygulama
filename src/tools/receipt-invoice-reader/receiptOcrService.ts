@@ -299,7 +299,10 @@ export async function exportReceiptFile(
   }
 
   try {
-    const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+    const cacheDir = FileSystem.Paths.cache.uri.endsWith('/')
+      ? FileSystem.Paths.cache.uri
+      : `${FileSystem.Paths.cache.uri}/`;
+    const fileUri = `${cacheDir}${fileName}`;
     await FileSystem.writeAsStringAsync(fileUri, content, {
       encoding: FileSystem.EncodingType.UTF8,
     });

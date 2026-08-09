@@ -49,7 +49,10 @@ export async function exportVCardFile(contact: ExtractedContact): Promise<void> 
   }
 
   try {
-    const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+    const cacheDir = FileSystem.Paths.cache.uri.endsWith('/')
+      ? FileSystem.Paths.cache.uri
+      : `${FileSystem.Paths.cache.uri}/`;
+    const fileUri = `${cacheDir}${fileName}`;
     await FileSystem.writeAsStringAsync(fileUri, vcardText, {
       encoding: FileSystem.EncodingType.UTF8,
     });

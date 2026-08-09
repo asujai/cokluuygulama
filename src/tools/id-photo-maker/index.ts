@@ -5,7 +5,7 @@ export const idPhotoMakerTool: ToolDefinition = {
   id: 'id-photo-maker',
   name: 'Vesikalık & Biyometrik Fotoğraf',
   description: 'Biyometrik ve vesikalık fotoğraf hazırlama, arka plan temizleme ve 10x15 baskı şablonu (PNG/PDF)',
-  icon: 'person-crop-square-outline',
+  icon: 'person-outline',
   categoryId: 'visual',
   route: 'id-photo-maker',
   keywords: [

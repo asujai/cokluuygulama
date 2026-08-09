@@ -163,57 +163,19 @@ export async function saveToNativeContacts(contact: ExtractedContact): Promise<b
       throw new Error('Rehber izni verilmedi. Lütfen ayarlarınızdan izin tanımlayınız.');
     }
 
-    const newContact: Contacts.Contact = {
-      contactType: Contacts.ContactTypes.Person,
-      name: `${contact.firstName} ${contact.lastName}`.trim(),
-      [Contacts.Fields.FirstName]: contact.firstName,
-      [Contacts.Fields.LastName]: contact.lastName,
-      [Contacts.Fields.Company]: contact.company || undefined,
-      [Contacts.Fields.JobTitle]: contact.jobTitle || undefined,
-    };
+    const created = await Contacts.Contact.create({
+      givenName: contact.firstName,
+      familyName: contact.lastName,
+      company: contact.company || undefined,
+      jobTitle: contact.jobTitle || undefined,
+      phones: contact.phone ? [{ label: 'mobile', number: contact.phone }] : undefined,
+      emails: contact.email ? [{ label: 'work', address: contact.email }] : undefined,
+      urlAddresses: contact.website ? [{ label: 'work', url: contact.website }] : undefined,
+      addresses: contact.address ? [{ label: 'work', street: contact.address }] : undefined,
+      note: contact.notes || undefined,
+    });
 
-    if (contact.phone) {
-      newContact[Contacts.Fields.PhoneNumbers] = [
-        {
-          label: 'mobile',
-          number: contact.phone,
-        },
-      ];
-    }
-
-    if (contact.email) {
-      newContact[Contacts.Fields.Emails] = [
-        {
-          label: 'work',
-          email: contact.email,
-        },
-      ];
-    }
-
-    if (contact.website) {
-      newContact[Contacts.Fields.UrlAddresses] = [
-        {
-          label: 'work',
-          url: contact.website,
-        },
-      ];
-    }
-
-    if (contact.address) {
-      newContact[Contacts.Fields.Addresses] = [
-        {
-          label: 'work',
-          street: contact.address,
-        },
-      ];
-    }
-
-    if (contact.notes) {
-      newContact[Contacts.Fields.Note] = contact.notes;
-    }
-
-    const contactId = await Contacts.addContactAsync(newContact);
-    return !!contactId;
+    return !!created;
   } catch (err) {
     console.error('Save to native contacts failed:', err);
     throw err;

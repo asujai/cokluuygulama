@@ -184,7 +184,10 @@ export async function shareOrDownloadCombinedImage(
     let targetUri = uri;
     if (uri.startsWith('data:')) {
       const base64Data = uri.split(',')[1];
-      targetUri = `${FileSystem.cacheDirectory}${fileName}`;
+      const cacheDir = FileSystem.Paths.cache.uri.endsWith('/')
+        ? FileSystem.Paths.cache.uri
+        : `${FileSystem.Paths.cache.uri}/`;
+      targetUri = `${cacheDir}${fileName}`;
       await FileSystem.writeAsStringAsync(targetUri, base64Data, {
         encoding: FileSystem.EncodingType.Base64,
       });

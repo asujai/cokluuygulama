@@ -21,10 +21,10 @@ export const receiptInvoiceReaderTool: ToolDefinition = {
     'ocr',
     'migros',
     'bim',
-    'a101',,
+    'a101',
     'receipt',
     'invoice',
-  ],
+  ].filter((k): k is string => Boolean(k)),
   enabled: true,
   requiresPermission: [
     {
