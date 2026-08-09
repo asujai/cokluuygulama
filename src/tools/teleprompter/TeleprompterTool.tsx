@@ -82,6 +82,35 @@ export const TeleprompterTool: React.FC = () => {
       if (voiceTrackerRef.current) voiceTrackerRef.current.stop();
     };
   }, []);
+  // Live web webcam stream for desktop browsers
+  useEffect(() => {
+    if (
+      Platform.OS === 'web' &&
+      isPrompterActive &&
+      typeof navigator !== 'undefined' &&
+      navigator.mediaDevices?.getUserMedia
+    ) {
+      let localStream: MediaStream | null = null;
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: 'user' }, audio: false })
+        .then((s) => {
+          localStream = s;
+          const videoEl = document.getElementById('teleprompter-web-video') as HTMLVideoElement | null;
+          if (videoEl) {
+            videoEl.srcObject = s;
+            videoEl.play().catch(() => {});
+          }
+        })
+        .catch((err) => console.warn('Web camera stream note:', err));
+
+      return () => {
+        if (localStream) {
+          localStream.getTracks().forEach((track) => track.stop());
+        }
+      };
+    }
+  }, [isPrompterActive]);
+
 
   // Voice follow controller initialization
   useEffect(() => {
@@ -653,12 +682,23 @@ export const TeleprompterTool: React.FC = () => {
             />
           ) : (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: '#0B0F19' }]}>
-              <View style={styles.webCameraMock}>
-                <Ionicons name="camera-reverse-outline" size={64} color="#334155" />
-                <Text style={{ color: '#64748B', marginTop: 12, fontSize: 14 }}>
-                  Ön Kamera Önizleme (Web Simülasyonu)
-                </Text>
-              </View>
+              <video
+                id="teleprompter-web-video"
+                autoPlay
+                playsInline
+                muted
+                style={
+                  {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transform: 'scaleX(-1)',
+                  } as unknown as React.CSSProperties
+                }
+              />
             </View>
           )}
 

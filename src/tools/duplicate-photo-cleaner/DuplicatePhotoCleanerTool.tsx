@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
 import { useTheme } from '../../core/theme';
 import {
   DuplicateGroup,
@@ -186,6 +185,8 @@ export const DuplicatePhotoCleanerTool: React.FC = () => {
     // Delete from system gallery if native media assets
     if (assetIdsToDelete.length > 0 && Platform.OS !== 'web') {
       try {
+        // Platform-specific module: expo-media-library is only loaded on native platforms
+        const MediaLibrary = await import('expo-media-library');
         await MediaLibrary.deleteAssetsAsync(assetIdsToDelete);
       } catch (err) {
         console.warn('Device media delete note:', err);
