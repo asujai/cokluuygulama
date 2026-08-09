@@ -18,6 +18,11 @@ import { pdfToolboxTool } from '../tools/pdf-toolbox';
 import { exifCleanerTool } from '../tools/exif-cleaner';
 import { zipManagerTool } from '../tools/zip-manager';
 import { videoToGifTool } from '../tools/video-to-gif';
+import { spiritLevelTool } from '../tools/spirit-level';
+import { compassTool } from '../tools/compass';
+import { multiTimerTool } from '../tools/multi-timer';
+import { dateCalculatorTool } from '../tools/date-calculator';
+import { randomPickerTool } from '../tools/random-picker';
 
 /**
  * Master array of all registered tools.
@@ -41,6 +46,11 @@ export const TOOLS: ToolDefinition[] = [
   exifCleanerTool,
   zipManagerTool,
   videoToGifTool,
+  spiritLevelTool,
+  compassTool,
+  multiTimerTool,
+  dateCalculatorTool,
+  randomPickerTool,
 ];
 
 /**

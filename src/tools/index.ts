@@ -15,3 +15,8 @@ export * from './pdf-toolbox';
 export * from './exif-cleaner';
 export * from './zip-manager';
 export * from './video-to-gif';
+export * from './spirit-level';
+export * from './compass';
+export * from './multi-timer';
+export * from './date-calculator';
+export * from './random-picker';
