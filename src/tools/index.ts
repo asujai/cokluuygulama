@@ -10,3 +10,8 @@ export * from './duplicate-photo-cleaner';
 export * from './teleprompter';
 export * from './sound-mixer';
 export * from './audio-trimmer';
+export * from './qr-barcode-suite';
+export * from './pdf-toolbox';
+export * from './exif-cleaner';
+export * from './zip-manager';
+export * from './video-to-gif';

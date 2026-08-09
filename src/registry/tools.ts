@@ -13,6 +13,11 @@ import { duplicatePhotoCleanerTool } from '../tools/duplicate-photo-cleaner';
 import { teleprompterTool } from '../tools/teleprompter';
 import { soundMixerTool } from '../tools/sound-mixer';
 import { audioTrimmerTool } from '../tools/audio-trimmer';
+import { qrBarcodeSuiteTool } from '../tools/qr-barcode-suite';
+import { pdfToolboxTool } from '../tools/pdf-toolbox';
+import { exifCleanerTool } from '../tools/exif-cleaner';
+import { zipManagerTool } from '../tools/zip-manager';
+import { videoToGifTool } from '../tools/video-to-gif';
 
 /**
  * Master array of all registered tools.
@@ -31,6 +36,11 @@ export const TOOLS: ToolDefinition[] = [
   teleprompterTool,
   soundMixerTool,
   audioTrimmerTool,
+  qrBarcodeSuiteTool,
+  pdfToolboxTool,
+  exifCleanerTool,
+  zipManagerTool,
+  videoToGifTool,
 ];
 
 /**
