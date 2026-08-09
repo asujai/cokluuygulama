@@ -4,6 +4,10 @@ import { matchesTurkishQuery } from './turkishUtils';
 import { textCounterTool } from '../tools/text-counter';
 import { unitConverterTool } from '../tools/unit-converter';
 import { passwordGeneratorTool } from '../tools/password-generator';
+import { documentScannerTool } from '../tools/document-scanner';
+import { mediaCompressorTool } from '../tools/media-compressor';
+import { habitTrackerTool } from '../tools/habit-tracker';
+import { hiitTabataTimerTool } from '../tools/hiit-tabata-timer';
 
 /**
  * Master array of all registered tools.
@@ -13,6 +17,10 @@ export const TOOLS: ToolDefinition[] = [
   textCounterTool,
   unitConverterTool,
   passwordGeneratorTool,
+  documentScannerTool,
+  mediaCompressorTool,
+  habitTrackerTool,
+  hiitTabataTimerTool,
 ];
 
 /**
