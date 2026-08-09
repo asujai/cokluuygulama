@@ -4,7 +4,7 @@ import { TextCounterTool } from './TextCounterTool';
 export const textCounterTool: ToolDefinition = {
   id: 'text-counter',
   name: 'Metin Sayacı',
-  description: 'Karakter, kelime, satır, cümle ve tahmini okuma süresi hesaplayıcı',
+  description: 'Karakter, kelime, satır, cümle ve tahmini okuma süresi hesaplayıcı, Türkçe büyük/küçük harf, sıralama ve CSV dönüştürücü',
   icon: 'stats-chart-outline',
   categoryId: 'text',
   route: 'text-counter',
@@ -20,6 +20,10 @@ export const textCounterTool: ToolDefinition = {
     'yazi',
     'istatistik',
     'uzunluk',
+    'csv',
+    'turkce',
+    'sirala',
+    'ters',
   ],
   enabled: true,
   requiresPermission: [],
@@ -28,3 +32,4 @@ export const textCounterTool: ToolDefinition = {
 };
 
 export { TextCounterTool };
+export * from './textProcessing';

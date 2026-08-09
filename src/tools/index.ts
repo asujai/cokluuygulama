@@ -20,3 +20,6 @@ export * from './compass';
 export * from './multi-timer';
 export * from './date-calculator';
 export * from './random-picker';
+export * from './color-picker-palette';
+export * from './file-hash';
+export * from './contact-cleaner';

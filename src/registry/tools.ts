@@ -23,6 +23,9 @@ import { compassTool } from '../tools/compass';
 import { multiTimerTool } from '../tools/multi-timer';
 import { dateCalculatorTool } from '../tools/date-calculator';
 import { randomPickerTool } from '../tools/random-picker';
+import { colorPickerPaletteTool } from '../tools/color-picker-palette';
+import { fileHashTool } from '../tools/file-hash';
+import { contactCleanerTool } from '../tools/contact-cleaner';
 
 /**
  * Master array of all registered tools.
@@ -51,6 +54,9 @@ export const TOOLS: ToolDefinition[] = [
   multiTimerTool,
   dateCalculatorTool,
   randomPickerTool,
+  colorPickerPaletteTool,
+  fileHashTool,
+  contactCleanerTool,
 ];
 
 /**

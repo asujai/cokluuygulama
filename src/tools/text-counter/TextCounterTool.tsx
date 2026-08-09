@@ -6,19 +6,34 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import { useTheme } from '../../core/theme';
+import {
+  toTurkishUpperCase,
+  toTurkishLowerCase,
+  toTurkishTitleCase,
+  cleanWhitespace,
+  removeDuplicateLines,
+  sortLinesTurkish,
+  reverseText,
+  reverseLines,
+  linesToCsv,
+  csvToLines,
+} from './textProcessing';
 
 export const TextCounterTool: React.FC = () => {
   const { theme, spacing, borderRadius, typography } = useTheme();
   const [text, setText] = useState('');
+  const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const rawText = text;
     const charCount = rawText.length;
     const charCountWithoutSpaces = rawText.replace(/\s/g, '').length;
-    
+
     const trimmed = rawText.trim();
     const words = trimmed ? trimmed.split(/\s+/).filter(Boolean) : [];
     const wordCount = words.length;
@@ -44,24 +59,35 @@ export const TextCounterTool: React.FC = () => {
     };
   }, [text]);
 
+  const showCopyToast = (msg = 'Kopyalandı!') => {
+    setCopiedMessage(msg);
+    setTimeout(() => {
+      setCopiedMessage(null);
+    }, 2000);
+  };
+
+  const handleCopy = async () => {
+    if (!text) return;
+    await Clipboard.setStringAsync(text);
+    showCopyToast('Metin kopyalandı');
+  };
+
   const handleClear = () => {
     setText('');
   };
 
-  const handleUpperCase = () => {
-    setText(text.toLocaleUpperCase('tr-TR'));
-  };
-
-  const handleLowerCase = () => {
-    setText(text.toLocaleLowerCase('tr-TR'));
-  };
-
-  const handleCapitalize = () => {
-    const capitalized = text
-      .toLocaleLowerCase('tr-TR')
-      .replace(/(?:^|\s)\S/g, (char) => char.toLocaleUpperCase('tr-TR'));
-    setText(capitalized);
-  };
+  // Processing handlers
+  const handleUpperCase = () => setText(toTurkishUpperCase(text));
+  const handleLowerCase = () => setText(toTurkishLowerCase(text));
+  const handleTitleCase = () => setText(toTurkishTitleCase(text));
+  const handleCleanSpaces = () => setText(cleanWhitespace(text));
+  const handleRemoveDuplicates = () => setText(removeDuplicateLines(text));
+  const handleSortAsc = () => setText(sortLinesTurkish(text, true));
+  const handleSortDesc = () => setText(sortLinesTurkish(text, false));
+  const handleReverseText = () => setText(reverseText(text));
+  const handleReverseLines = () => setText(reverseLines(text));
+  const handleLinesToCsv = () => setText(linesToCsv(text));
+  const handleCsvToLines = () => setText(csvToLines(text));
 
   return (
     <ScrollView
@@ -69,6 +95,21 @@ export const TextCounterTool: React.FC = () => {
       contentContainerStyle={[styles.content, { padding: spacing.lg }]}
       keyboardShouldPersistTaps="handled"
     >
+      {/* Toast Feedback */}
+      {copiedMessage && (
+        <View
+          style={[
+            styles.toast,
+            { backgroundColor: theme.primary, borderRadius: borderRadius.sm },
+          ]}
+        >
+          <Ionicons name="checkmark-circle-outline" size={16} color="#FFFFFF" />
+          <Text style={[typography.labelMedium, { color: '#FFFFFF', marginLeft: spacing.xs }]}>
+            {copiedMessage}
+          </Text>
+        </View>
+      )}
+
       {/* Stat Cards Grid */}
       <View style={styles.statsGrid}>
         <View
@@ -186,28 +227,53 @@ export const TextCounterTool: React.FC = () => {
           <Text style={[typography.titleSmall, { color: theme.textPrimary }]}>
             Metin Alanı
           </Text>
-          {text.length > 0 && (
-            <TouchableOpacity
-              onPress={handleClear}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              style={[
-                styles.clearButton,
-                { backgroundColor: theme.errorContainer, borderRadius: borderRadius.xs },
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Metni temizle"
-            >
-              <Ionicons name="trash-outline" size={14} color={theme.onErrorContainer} />
-              <Text
-                style={[
-                  typography.labelSmall,
-                  { color: theme.onErrorContainer, marginLeft: spacing.xxs },
-                ]}
-              >
-                Temizle
-              </Text>
-            </TouchableOpacity>
-          )}
+          <View style={styles.headerActions}>
+            {text.length > 0 && (
+              <>
+                <TouchableOpacity
+                  onPress={handleCopy}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={[
+                    styles.headerBtn,
+                    { backgroundColor: theme.primaryContainer, borderRadius: borderRadius.xs, marginRight: spacing.xs },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Metni kopyala"
+                >
+                  <Ionicons name="copy-outline" size={14} color={theme.onPrimaryContainer} />
+                  <Text
+                    style={[
+                      typography.labelSmall,
+                      { color: theme.onPrimaryContainer, marginLeft: spacing.xxs },
+                    ]}
+                  >
+                    Kopyala
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleClear}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={[
+                    styles.headerBtn,
+                    { backgroundColor: theme.errorContainer, borderRadius: borderRadius.xs },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Metni temizle"
+                >
+                  <Ionicons name="trash-outline" size={14} color={theme.onErrorContainer} />
+                  <Text
+                    style={[
+                      typography.labelSmall,
+                      { color: theme.onErrorContainer, marginLeft: spacing.xxs },
+                    ]}
+                  >
+                    Temizle
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
 
         <TextInput
@@ -221,7 +287,7 @@ export const TextCounterTool: React.FC = () => {
               padding: spacing.md,
             },
           ]}
-          placeholder="İncelemek istediğiniz metni buraya yazın veya yapıştırın..."
+          placeholder="İncelemek veya dönüştürmek istediğiniz metni buraya yazın ya da yapıştırın..."
           placeholderTextColor={theme.textMuted}
           multiline
           numberOfLines={8}
@@ -232,70 +298,183 @@ export const TextCounterTool: React.FC = () => {
         />
       </View>
 
-      {/* Quick Text Actions */}
-      <View style={[styles.actionsRow, { marginTop: spacing.md }]}>
-        <TouchableOpacity
-          onPress={handleUpperCase}
-          disabled={!text}
-          style={[
-            styles.actionButton,
-            {
-              backgroundColor: theme.surfaceVariant,
-              borderRadius: borderRadius.sm,
-              opacity: text ? 1 : 0.5,
-              paddingVertical: spacing.sm,
-              paddingHorizontal: spacing.md,
-            },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Tümünü büyük harfe çevir"
-        >
-          <Text style={[typography.labelMedium, { color: theme.textPrimary }]}>
-            BÜYÜK
-          </Text>
-        </TouchableOpacity>
+      {/* Advanced Text Processing Tools */}
+      <View style={{ marginTop: spacing.lg }}>
+        <Text style={[typography.titleSmall, { color: theme.textPrimary, marginBottom: spacing.sm }]}>
+          Metin İşlemleri & Dönüştürücüler
+        </Text>
 
-        <TouchableOpacity
-          onPress={handleLowerCase}
-          disabled={!text}
-          style={[
-            styles.actionButton,
-            {
-              backgroundColor: theme.surfaceVariant,
-              borderRadius: borderRadius.sm,
-              opacity: text ? 1 : 0.5,
-              paddingVertical: spacing.sm,
-              paddingHorizontal: spacing.md,
-            },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Tümünü küçük harfe çevir"
-        >
-          <Text style={[typography.labelMedium, { color: theme.textPrimary }]}>
-            küçük
-          </Text>
-        </TouchableOpacity>
+        {/* Section 1: Harf Dönüşümleri */}
+        <Text style={[typography.labelMedium, { color: theme.textSecondary, marginBottom: spacing.xs }]}>
+          Harf & Biçim
+        </Text>
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            onPress={handleUpperCase}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="text-outline" size={16} color={theme.primary} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              BÜYÜK HARF
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={handleCapitalize}
-          disabled={!text}
-          style={[
-            styles.actionButton,
-            {
-              backgroundColor: theme.surfaceVariant,
-              borderRadius: borderRadius.sm,
-              opacity: text ? 1 : 0.5,
-              paddingVertical: spacing.sm,
-              paddingHorizontal: spacing.md,
-            },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Baş harfleri büyüt"
-        >
-          <Text style={[typography.labelMedium, { color: theme.textPrimary }]}>
-            Baş Harfler
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleLowerCase}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="text-outline" size={16} color={theme.primary} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              küçük harf
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleTitleCase}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="document-text-outline" size={16} color={theme.primary} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Baş Harfler
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Section 2: Temizlik ve Satır İşlemleri */}
+        <Text style={[typography.labelMedium, { color: theme.textSecondary, marginTop: spacing.md, marginBottom: spacing.xs }]}>
+          Temizlik & Satır İşlemleri
+        </Text>
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            onPress={handleCleanSpaces}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="cut-outline" size={16} color={theme.accent} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Boşluk Temizle
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleRemoveDuplicates}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="filter-outline" size={16} color={theme.accent} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Tekrarları Sil
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSortAsc}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="swap-vertical-outline" size={16} color={theme.accent} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Sırala (A-Z)
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleSortDesc}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="swap-vertical-outline" size={16} color={theme.accent} />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Sırala (Z-A)
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Section 3: Ters Çevirme & Dönüştürme */}
+        <Text style={[typography.labelMedium, { color: theme.textSecondary, marginTop: spacing.md, marginBottom: spacing.xs }]}>
+          Ters Çevirme & CSV
+        </Text>
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            onPress={handleReverseText}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="refresh-outline" size={16} color="#7C3AED" />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Metni Ters Çevir
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleReverseLines}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="reorder-two-outline" size={16} color="#7C3AED" />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Satırları Çevir
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleLinesToCsv}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="list-outline" size={16} color="#0891B2" />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              Satır ➔ CSV
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleCsvToLines}
+            disabled={!text}
+            style={[
+              styles.actionBtn,
+              { backgroundColor: theme.surfaceVariant, borderRadius: borderRadius.sm, opacity: text ? 1 : 0.5 },
+            ]}
+          >
+            <Ionicons name="grid-outline" size={16} color="#0891B2" />
+            <Text style={[typography.labelMedium, { color: theme.textPrimary, marginLeft: spacing.xs }]}>
+              CSV ➔ Satır
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -308,6 +487,23 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingBottom: 40,
+  },
+  toast: {
+    position: 'absolute',
+    top: 10,
+    left: 20,
+    right: 20,
+    zIndex: 999,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -335,7 +531,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  clearButton: {
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 4,
@@ -344,18 +544,23 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    minHeight: 180,
+    minHeight: 160,
     fontSize: 15,
     lineHeight: 22,
   },
-  actionsRow: {
+  actionGrid: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    gap: 8,
   },
-  actionButton: {
-    flex: 1,
+  actionBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    minHeight: 42,
+    flexGrow: 1,
+    minWidth: '45%',
   },
 });

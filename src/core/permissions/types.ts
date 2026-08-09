@@ -3,7 +3,8 @@ export type PermissionType =
   | 'media_library'
   | 'clipboard'
   | 'notifications'
-  | 'location';
+  | 'location'
+  | 'contacts';
 
 export type PermissionStatus =
   | 'granted'
