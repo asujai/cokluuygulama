@@ -4,7 +4,10 @@
       "command(*)",
       "file_read(*)",
       "file_write(*)",
-      "file_edit(*)"
+      "file_edit(*)",
+      "read_file(*)",
+      "write_file(*)",
+      "edit_file(*)"
     ]
   }
 }
