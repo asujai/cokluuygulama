@@ -6,3 +6,7 @@ export * from './media-compressor';
 export * from './habit-tracker';
 export * from './hiit-tabata-timer';
 export * from './object-remover';
+export * from './duplicate-photo-cleaner';
+export * from './teleprompter';
+export * from './sound-mixer';
+export * from './audio-trimmer';

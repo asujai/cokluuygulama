@@ -9,6 +9,10 @@ import { mediaCompressorTool } from '../tools/media-compressor';
 import { habitTrackerTool } from '../tools/habit-tracker';
 import { hiitTabataTimerTool } from '../tools/hiit-tabata-timer';
 import { objectRemoverTool } from '../tools/object-remover';
+import { duplicatePhotoCleanerTool } from '../tools/duplicate-photo-cleaner';
+import { teleprompterTool } from '../tools/teleprompter';
+import { soundMixerTool } from '../tools/sound-mixer';
+import { audioTrimmerTool } from '../tools/audio-trimmer';
 
 /**
  * Master array of all registered tools.
@@ -23,6 +27,10 @@ export const TOOLS: ToolDefinition[] = [
   habitTrackerTool,
   hiitTabataTimerTool,
   objectRemoverTool,
+  duplicatePhotoCleanerTool,
+  teleprompterTool,
+  soundMixerTool,
+  audioTrimmerTool,
 ];
 
 /**
