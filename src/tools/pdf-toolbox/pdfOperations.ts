@@ -1,4 +1,3 @@
-import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
 import { Platform } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import {
@@ -8,6 +7,12 @@ import {
   SignatureOptions,
   WatermarkOptions,
 } from './types';
+
+type PdfLib = typeof import('pdf-lib');
+
+async function loadPdfLib(): Promise<PdfLib> {
+  return import('pdf-lib');
+}
 
 // ==========================================
 // 1. File Buffer Helpers
@@ -43,6 +48,7 @@ export function formatFileSize(bytes: number): string {
 
 export async function getPdfPageCount(bytes: Uint8Array): Promise<number> {
   try {
+    const { PDFDocument } = await loadPdfLib();
     const pdfDoc = await PDFDocument.load(bytes, { ignoreEncryption: true });
     return pdfDoc.getPageCount();
   } catch (err) {
@@ -61,6 +67,7 @@ export async function getPdfPageCount(bytes: Uint8Array): Promise<number> {
 export async function mergePdfs(
   files: { name: string; bytes: Uint8Array }[]
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib();
   if (files.length === 0) throw new Error('Birleştirmek için en az bir PDF dosyası seçmelisiniz.');
   const mergedPdf = await PDFDocument.create();
 
@@ -103,6 +110,7 @@ export async function splitPdfPages(
   pdfBytes: Uint8Array,
   rangeStr: string
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib();
   const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const totalPages = srcDoc.getPageCount();
   const pageIndices = parsePageRangeString(rangeStr, totalPages);
@@ -125,6 +133,7 @@ export async function deletePdfPages(
   pdfBytes: Uint8Array,
   pageIndicesToDelete: number[]
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib();
   const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const totalPages = srcDoc.getPageCount();
   const deleteSet = new Set(pageIndicesToDelete);
@@ -155,6 +164,7 @@ export async function rotatePdfPages(
   angle: number,
   targetPageIndices?: number[]
 ): Promise<Uint8Array> {
+  const { PDFDocument, degrees } = await loadPdfLib();
   const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const totalPages = doc.getPageCount();
   const pagesToRotate =
@@ -180,6 +190,7 @@ export async function imagesToPdf(
   images: ImageToPdfItem[],
   options: { margin?: number } = {}
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib();
   if (images.length === 0) throw new Error('En az bir görsel eklemelisiniz.');
   const pdfDoc = await PDFDocument.create();
   const margin = options.margin !== undefined ? options.margin : 20;
@@ -241,6 +252,7 @@ export async function addWatermarkToPdf(
   pdfBytes: Uint8Array,
   options: WatermarkOptions
 ): Promise<Uint8Array> {
+  const { PDFDocument, StandardFonts, rgb, degrees } = await loadPdfLib();
   const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const font = await doc.embedFont(StandardFonts.HelveticaBold);
   const pages = doc.getPages();
@@ -286,6 +298,7 @@ export async function addSignatureToPdf(
   signaturePngDataUrl: string,
   options: SignatureOptions
 ): Promise<Uint8Array> {
+  const { PDFDocument } = await loadPdfLib();
   const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const totalPages = doc.getPageCount();
   const pageIdx = Math.max(0, Math.min(totalPages - 1, options.pageIndex));
