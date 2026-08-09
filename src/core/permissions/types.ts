@@ -4,7 +4,8 @@ export type PermissionType =
   | 'clipboard'
   | 'notifications'
   | 'location'
-  | 'contacts';
+  | 'contacts'
+  | 'nfc';
 
 export type PermissionStatus =
   | 'granted'
