@@ -5,7 +5,7 @@ export const srtEditorTool: ToolDefinition = {
   id: 'srt-editor',
   name: 'SRT Altyazı Düzenleyici',
   description: 'SRT altyazı dosyalarını içe aktarın, zaman damgalarını kaydırın (+/- saniye), metinleri düzenleyin ve kaydet/indirin',
-  icon: 'subtitles-outline',
+  icon: 'document-text-outline',
   categoryId: 'text',
   route: 'srt-editor',
   keywords: [

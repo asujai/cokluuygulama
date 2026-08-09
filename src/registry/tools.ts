@@ -26,6 +26,23 @@ import { randomPickerTool } from '../tools/random-picker';
 import { colorPickerPaletteTool } from '../tools/color-picker-palette';
 import { fileHashTool } from '../tools/file-hash';
 import { contactCleanerTool } from '../tools/contact-cleaner';
+import { personalRedactorTool } from '../tools/personal-redactor';
+import { idPhotoMakerTool } from '../tools/id-photo-maker';
+import { photoCombinerTool } from '../tools/photo-combiner';
+import { businessCardContactsTool } from '../tools/business-card-contacts';
+import { receiptInvoiceReaderTool } from '../tools/receipt-invoice-reader';
+import { pdfFormFillerTool } from '../tools/pdf-form-filler';
+import { backgroundRemoverTool } from '../tools/background-remover';
+import { batchFileRenamerTool } from '../tools/batch-file-renamer';
+import { largeFileSplitterTool } from '../tools/large-file-splitter';
+import { nfcTool } from '../tools/nfc-tool';
+import { magnifierTool } from '../tools/magnifier';
+import { phoneTestCenterTool } from '../tools/phone-test-center';
+import { fileEncryptionTool } from '../tools/file-encryption';
+import { textCompareTool } from '../tools/text-compare';
+import { simpleVideoToolsTool } from '../tools/simple-video-tools';
+import { srtEditorTool } from '../tools/srt-editor';
+import { contactsBackupTool } from '../tools/contacts-backup';
 
 /**
  * Master array of all registered tools.
@@ -57,6 +74,23 @@ export const TOOLS: ToolDefinition[] = [
   colorPickerPaletteTool,
   fileHashTool,
   contactCleanerTool,
+  personalRedactorTool,
+  idPhotoMakerTool,
+  photoCombinerTool,
+  businessCardContactsTool,
+  receiptInvoiceReaderTool,
+  pdfFormFillerTool,
+  backgroundRemoverTool,
+  batchFileRenamerTool,
+  largeFileSplitterTool,
+  nfcTool,
+  magnifierTool,
+  phoneTestCenterTool,
+  fileEncryptionTool,
+  textCompareTool,
+  simpleVideoToolsTool,
+  srtEditorTool,
+  contactsBackupTool,
 ];
 
 /**

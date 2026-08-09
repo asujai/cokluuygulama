@@ -6,7 +6,7 @@ export const backgroundRemoverTool: ToolDefinition = {
   name: 'Arka Plan Silici',
   description: 'Görsellerden yerel renk ve kenar ayrıştırma ile arka planı kaldırın veya değiştirin',
   icon: 'color-wand-outline',
-  categoryId: 'image',
+  categoryId: 'visual',
   route: 'background-remover',
   keywords: [
     'background',

@@ -6,7 +6,7 @@ export const largeFileSplitterTool: ToolDefinition = {
   name: 'Büyük Dosya Bölücü',
   description: 'Büyük dosyaları seçtiğiniz boyut veya parça sayısına göre bölün ve birleştirin',
   icon: 'cut-outline',
-  categoryId: 'productivity',
+  categoryId: 'document',
   route: 'large-file-splitter',
   keywords: [
     'splitter',

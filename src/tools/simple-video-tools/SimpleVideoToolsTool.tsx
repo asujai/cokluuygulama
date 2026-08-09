@@ -145,13 +145,14 @@ export const SimpleVideoToolsTool: React.FC = () => {
 
       if (status.durationMillis && videoMeta && videoMeta.duration !== status.durationMillis / 1000) {
         const durSec = status.durationMillis / 1000;
+        const videoStatus = status as { naturalSize?: { width: number; height: number } };
         setVideoMeta((prev) =>
           prev
             ? {
                 ...prev,
                 duration: durSec,
-                width: status.naturalSize?.width || prev.width,
-                height: status.naturalSize?.height || prev.height,
+                width: videoStatus.naturalSize?.width || prev.width,
+                height: videoStatus.naturalSize?.height || prev.height,
               }
             : null
         );

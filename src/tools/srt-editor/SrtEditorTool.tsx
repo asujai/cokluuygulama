@@ -213,7 +213,8 @@ export const SrtEditorTool: React.FC = () => {
       document.body.removeChild(a);
       showToast('SRT dosyası indirildi!');
     } else {
-      const fileUri = `${FileSystem.cacheDirectory}subtitles_edited.srt`;
+      const cacheUri = FileSystem.Paths.cache.uri;
+      const fileUri = `${cacheUri.endsWith('/') ? cacheUri : `${cacheUri}/`}subtitles_edited.srt`;
       await FileSystem.writeAsStringAsync(fileUri, srtString);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
@@ -271,7 +272,7 @@ export const SrtEditorTool: React.FC = () => {
               { backgroundColor: theme.primaryContainer, borderRadius: borderRadius.full },
             ]}
           >
-            <Ionicons name="subtitles-outline" size={32} color={theme.onPrimaryContainer} />
+            <Ionicons name="document-text-outline" size={32} color={theme.onPrimaryContainer} />
           </View>
 
           <View style={{ flex: 1, marginLeft: spacing.sm }}>

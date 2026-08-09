@@ -166,7 +166,8 @@ export const ContactsBackupTool: React.FC = () => {
       document.body.removeChild(a);
       showToast(`${selected.length} kişi VCF dosyası olarak indirildi!`);
     } else {
-      const fileUri = `${FileSystem.cacheDirectory}contacts_backup.vcf`;
+      const cacheUri = FileSystem.Paths.cache.uri;
+      const fileUri = `${cacheUri.endsWith('/') ? cacheUri : `${cacheUri}/`}contacts_backup.vcf`;
       await FileSystem.writeAsStringAsync(fileUri, vcfString);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
@@ -265,25 +266,23 @@ export const ContactsBackupTool: React.FC = () => {
 
     try {
       for (const c of selected) {
-        const contactData: Contacts.Contact = {
-          [Contacts.Fields.ContactType]: Contacts.ContactTypes.Person,
-          [Contacts.Fields.Name]: c.formattedName,
-          [Contacts.Fields.FirstName]: c.firstName || c.formattedName,
-          [Contacts.Fields.LastName]: c.lastName || '',
-          [Contacts.Fields.Company]: c.organization || '',
-          [Contacts.Fields.JobTitle]: c.jobTitle || '',
-          [Contacts.Fields.Note]: c.note || '',
-          [Contacts.Fields.PhoneNumbers]: c.phoneNumbers.map((p) => ({
+        const contactData: Contacts.CreateContactRecord = {
+          givenName: c.firstName || c.formattedName,
+          familyName: c.lastName || '',
+          company: c.organization || '',
+          jobTitle: c.jobTitle || '',
+          note: c.note || '',
+          phones: c.phoneNumbers.map((p) => ({
             label: p.type || 'mobile',
             number: p.number,
           })),
-          [Contacts.Fields.Emails]: c.emails.map((e) => ({
+          emails: c.emails.map((e) => ({
             label: e.type || 'work',
-            email: e.email,
+            address: e.email,
           })),
         };
 
-        await Contacts.addContactAsync(contactData);
+        await Contacts.Contact.create(contactData);
         successCount++;
       }
 

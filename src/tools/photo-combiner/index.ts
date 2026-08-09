@@ -33,5 +33,4 @@ export const photoCombinerTool: ToolDefinition = {
 };
 
 export { PhotoCombinerTool };
-export * from './types';
-export * from './combinerService';
+export { combinePhotos, shareOrDownloadCombinedImage } from './combinerService';
