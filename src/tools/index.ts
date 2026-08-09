@@ -5,3 +5,4 @@ export * from './document-scanner';
 export * from './media-compressor';
 export * from './habit-tracker';
 export * from './hiit-tabata-timer';
+export * from './object-remover';

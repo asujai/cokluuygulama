@@ -8,6 +8,7 @@ import { documentScannerTool } from '../tools/document-scanner';
 import { mediaCompressorTool } from '../tools/media-compressor';
 import { habitTrackerTool } from '../tools/habit-tracker';
 import { hiitTabataTimerTool } from '../tools/hiit-tabata-timer';
+import { objectRemoverTool } from '../tools/object-remover';
 
 /**
  * Master array of all registered tools.
@@ -21,6 +22,7 @@ export const TOOLS: ToolDefinition[] = [
   mediaCompressorTool,
   habitTrackerTool,
   hiitTabataTimerTool,
+  objectRemoverTool,
 ];
 
 /**
