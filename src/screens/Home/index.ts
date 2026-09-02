@@ -1,1 +1,1 @@
-export * from './HomeScreen';
+export { SearchOnlyHomeScreen, SearchOnlyHomeScreen as HomeScreen } from './SearchOnlyHomeScreen';

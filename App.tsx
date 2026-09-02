@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from './src/core/theme';
 import { LibraryProvider, useLibrary } from './src/core/storage';
 import { AppNavigator } from './src/core/navigation';
+import { ErrorBoundary } from './src/components';
 import { validateRegistries } from './src/registry';
 
 // Validate registry integrity on startup
@@ -26,7 +27,12 @@ const AppContent: React.FC = () => {
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <AppNavigator />
+      <ErrorBoundary
+        fallbackTitle="Gündelik başlatılamadı"
+        fallbackMessage="Uygulama başlatılırken beklenmeyen bir sorun oluştu. Tekrar deneyin."
+      >
+        <AppNavigator />
+      </ErrorBoundary>
     </View>
   );
 };

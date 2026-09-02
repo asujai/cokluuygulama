@@ -44,6 +44,8 @@ import { simpleVideoToolsTool } from '../tools/simple-video-tools';
 import { srtEditorTool } from '../tools/srt-editor';
 import { contactsBackupTool } from '../tools/contacts-backup';
 
+import { findMatchingIntents } from './intentAliases';
+
 /**
  * Master array of all registered tools.
  * To register a new tool, simply add its ToolDefinition here.
@@ -177,8 +179,14 @@ export function searchTools(query: string): ToolDefinition[] {
   }
 
   const enabledTools = getAllEnabledTools();
+  const intentMatches = findMatchingIntents(trimmed);
+  const intentToolIds = new Set(intentMatches.flatMap((intent) => intent.toolIds));
 
   return enabledTools.filter((tool) => {
+    // Match in intent aliases
+    if (intentToolIds.has(tool.id)) {
+      return true;
+    }
     // Match in tool name
     if (matchesTurkishQuery(tool.name, trimmed)) {
       return true;

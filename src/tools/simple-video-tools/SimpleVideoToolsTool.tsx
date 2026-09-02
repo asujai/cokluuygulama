@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,11 @@ import {
   Platform,
   TextInput,
   Switch,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../core/theme';
@@ -34,6 +36,32 @@ import {
 
 type ActiveTab = 'trim' | 'crop' | 'rotate' | 'audio';
 
+type VideoPreviewProps = {
+  uri: string;
+  style: StyleProp<ViewStyle>;
+  muted?: boolean;
+  onTimeUpdate?: (positionSeconds: number) => void;
+};
+
+const VideoPreview: React.FC<VideoPreviewProps> = ({ uri, style, muted = false, onTimeUpdate }) => {
+  const player = useVideoPlayer(uri, (videoPlayer) => {
+    videoPlayer.timeUpdateEventInterval = 0.25;
+    videoPlayer.muted = muted;
+  });
+
+  useEffect(() => {
+    player.muted = muted;
+  }, [muted, player]);
+
+  useEffect(() => {
+    if (!onTimeUpdate) return;
+    const interval = setInterval(() => onTimeUpdate(player.currentTime), 250);
+    return () => clearInterval(interval);
+  }, [onTimeUpdate, player]);
+
+  return <VideoView player={player} style={style} nativeControls contentFit="contain" />;
+};
+
 export const SimpleVideoToolsTool: React.FC = () => {
   const { theme, spacing, borderRadius, typography } = useTheme();
   const capabilities = getPlatformCapabilities();
@@ -41,7 +69,6 @@ export const SimpleVideoToolsTool: React.FC = () => {
   // Video State
   const [videoMeta, setVideoMeta] = useState<VideoMetadata | null>(null);
   const [playbackPosSec, setPlaybackPosSec] = useState<number>(0);
-  const videoRef = useRef<Video>(null);
 
   // Edit Options
   const [activeTab, setActiveTab] = useState<ActiveTab>('trim');
@@ -135,34 +162,6 @@ export const SimpleVideoToolsTool: React.FC = () => {
       }
     } catch (err: any) {
       Alert.alert('Hata', err?.message || 'Galeri erişim hatası.');
-    }
-  };
-
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      const pos = (status.positionMillis || 0) / 1000;
-      setPlaybackPosSec(pos);
-
-      if (status.durationMillis && videoMeta && videoMeta.duration !== status.durationMillis / 1000) {
-        const durSec = status.durationMillis / 1000;
-        const videoStatus = status as { naturalSize?: { width: number; height: number } };
-        setVideoMeta((prev) =>
-          prev
-            ? {
-                ...prev,
-                duration: durSec,
-                width: videoStatus.naturalSize?.width || prev.width,
-                height: videoStatus.naturalSize?.height || prev.height,
-              }
-            : null
-        );
-
-        // Adjust default trim end if default
-        setOptions((prev) => ({
-          ...prev,
-          trimEnd: prev.trimEnd === 10 ? Math.min(10, durSec) : prev.trimEnd,
-        }));
-      }
     }
   };
 
@@ -432,14 +431,11 @@ export const SimpleVideoToolsTool: React.FC = () => {
               },
             ]}
           >
-            <Video
-              ref={videoRef}
-              source={{ uri: videoMeta.uri }}
+            <VideoPreview
+              uri={videoMeta.uri}
               style={styles.videoPlayer}
-              useNativeControls
-              resizeMode={ResizeMode.CONTAIN}
-              isMuted={options.muteAudio}
-              onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+              muted={options.muteAudio}
+              onTimeUpdate={setPlaybackPosSec}
             />
           </View>
 
@@ -848,15 +844,9 @@ export const SimpleVideoToolsTool: React.FC = () => {
 
               {result.type === 'video' && (
                 <View style={[styles.resultPreview, { backgroundColor: '#000', borderRadius: borderRadius.md, marginTop: spacing.sm }]}>
-                  <Video
-                    source={{ uri: result.uri }}
-                    style={styles.resultVideoPlayer}
-                    useNativeControls
-                    resizeMode={ResizeMode.CONTAIN}
-                  />
+                  <VideoPreview uri={result.uri} style={styles.resultVideoPlayer} />
                 </View>
               )}
-
               <TouchableOpacity
                 style={[
                   styles.saveShareBtn,

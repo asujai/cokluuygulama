@@ -1,4 +1,3 @@
-import { Audio } from 'expo-av';
 import { SoundTrackDefinition, SoundTrackId } from './types';
 
 export const SOUND_TRACKS: SoundTrackDefinition[] = [
@@ -140,15 +139,8 @@ class SoundSynthesizerEngine {
   }
 
   public async initBackgroundAudio(): Promise<void> {
-    try {
-      await Audio.setAudioModeAsync({
-        staysActiveInBackground: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-      });
-    } catch {
-      // Audio mode set notice
-    }
+    // Native audio mode is handled by the video/audio player modules.
+    // Procedural sounds use Web Audio when this tool runs on web.
   }
 
   public startEngine(initialVolumes: Record<SoundTrackId, number>, masterVol: number = 0.8): void {

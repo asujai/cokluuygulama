@@ -12,17 +12,41 @@ import { storageRepository } from './storageRepository';
 import { getToolById, isToolEnabled, ToolDefinition } from '../../registry';
 
 const MAX_RECENTS = 8;
+const MAX_HISTORY = 50;
+
+export interface OperationHistoryEntry {
+  id: string;
+  toolId: string;
+  toolName: string;
+  actionName?: string;
+  timestamp: number;
+  inputSummary?: string;
+  outputSummary?: string;
+  outputFileUri?: string;
+  outputFileName?: string;
+  outputFileType?: string;
+  outputFileSize?: number;
+  metadata?: Record<string, any>;
+}
 
 interface LibraryContextValue {
   favoriteIds: string[];
   favoriteTools: ToolDefinition[];
   recentIds: string[];
   recentTools: ToolDefinition[];
+  historyEntries: OperationHistoryEntry[];
   isHydrated: boolean;
+  firstUseSeen: boolean;
   toggleFavorite: (toolId: string) => Promise<void>;
   isFavorite: (toolId: string) => boolean;
   addRecent: (toolId: string) => Promise<void>;
   clearRecents: () => Promise<void>;
+  addHistoryEntry: (
+    entry: Omit<OperationHistoryEntry, 'id' | 'timestamp'> & { id?: string; timestamp?: number }
+  ) => Promise<void>;
+  clearHistory: () => Promise<void>;
+  removeHistoryEntry: (id: string) => Promise<void>;
+  dismissFirstUseHint: () => Promise<void>;
 }
 
 const LibraryContext = createContext<LibraryContextValue | undefined>(undefined);
@@ -34,6 +58,8 @@ interface LibraryProviderProps {
 export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) => {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [historyEntries, setHistoryEntries] = useState<OperationHistoryEntry[]>([]);
+  const [firstUseSeen, setFirstUseSeen] = useState<boolean>(false);
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
   // Hydrate state from AsyncStorage on startup
@@ -42,9 +68,11 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
 
     const hydrate = async () => {
       try {
-        const [savedFavorites, savedRecents] = await Promise.all([
+        const [savedFavorites, savedRecents, savedHistory, savedFirstUse] = await Promise.all([
           storageRepository.get<string[]>(STORAGE_KEYS.FAVORITES, []),
           storageRepository.get<string[]>(STORAGE_KEYS.RECENTS, []),
+          storageRepository.get<OperationHistoryEntry[]>(STORAGE_KEYS.HISTORY, []),
+          storageRepository.get<boolean>(STORAGE_KEYS.FIRST_USE_SEEN, false),
         ]);
 
         if (isMounted) {
@@ -57,8 +85,14 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
             ? savedRecents.filter((id) => isToolEnabled(id)).slice(0, MAX_RECENTS)
             : [];
 
+          const validHistory = Array.isArray(savedHistory)
+            ? savedHistory.slice(0, MAX_HISTORY)
+            : [];
+
           setFavoriteIds(validFavorites);
           setRecentIds(validRecents);
+          setHistoryEntries(validHistory);
+          setFirstUseSeen(!!savedFirstUse);
           setIsHydrated(true);
         }
       } catch (error) {
@@ -83,7 +117,6 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       setFavoriteIds((prev) => {
         const isFav = prev.includes(toolId);
         const updated = isFav ? prev.filter((id) => id !== toolId) : [...prev, toolId];
-        // Persist
         storageRepository.set(STORAGE_KEYS.FAVORITES, updated);
         return updated;
       });
@@ -103,11 +136,8 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       if (!isToolEnabled(toolId)) return;
 
       setRecentIds((prev) => {
-        // Remove existing instance if already present to deduplicate
         const filtered = prev.filter((id) => id !== toolId);
-        // Put most recent first, max 8
         const updated = [toolId, ...filtered].slice(0, MAX_RECENTS);
-        // Persist
         storageRepository.set(STORAGE_KEYS.RECENTS, updated);
         return updated;
       });
@@ -118,6 +148,43 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
   const clearRecents = useCallback(async () => {
     setRecentIds([]);
     await storageRepository.remove(STORAGE_KEYS.RECENTS);
+  }, []);
+
+  const addHistoryEntry = useCallback(
+    async (
+      entry: Omit<OperationHistoryEntry, 'id' | 'timestamp'> & { id?: string; timestamp?: number }
+    ) => {
+      const fullEntry: OperationHistoryEntry = {
+        ...entry,
+        id: entry.id || `op_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        timestamp: entry.timestamp || Date.now(),
+      };
+
+      setHistoryEntries((prev) => {
+        const updated = [fullEntry, ...prev].slice(0, MAX_HISTORY);
+        storageRepository.set(STORAGE_KEYS.HISTORY, updated);
+        return updated;
+      });
+    },
+    []
+  );
+
+  const clearHistory = useCallback(async () => {
+    setHistoryEntries([]);
+    await storageRepository.remove(STORAGE_KEYS.HISTORY);
+  }, []);
+
+  const removeHistoryEntry = useCallback(async (id: string) => {
+    setHistoryEntries((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      storageRepository.set(STORAGE_KEYS.HISTORY, updated);
+      return updated;
+    });
+  }, []);
+
+  const dismissFirstUseHint = useCallback(async () => {
+    setFirstUseSeen(true);
+    await storageRepository.set(STORAGE_KEYS.FIRST_USE_SEEN, true);
   }, []);
 
   // Compute ToolDefinition lists for active/enabled favorites & recents
@@ -139,22 +206,34 @@ export const LibraryProvider: React.FC<LibraryProviderProps> = ({ children }) =>
       favoriteTools,
       recentIds,
       recentTools,
+      historyEntries,
       isHydrated,
+      firstUseSeen,
       toggleFavorite,
       isFavorite,
       addRecent,
       clearRecents,
+      addHistoryEntry,
+      clearHistory,
+      removeHistoryEntry,
+      dismissFirstUseHint,
     }),
     [
       favoriteIds,
       favoriteTools,
       recentIds,
       recentTools,
+      historyEntries,
       isHydrated,
+      firstUseSeen,
       toggleFavorite,
       isFavorite,
       addRecent,
       clearRecents,
+      addHistoryEntry,
+      clearHistory,
+      removeHistoryEntry,
+      dismissFirstUseHint,
     ]
   );
 

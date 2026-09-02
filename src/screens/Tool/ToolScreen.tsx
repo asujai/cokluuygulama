@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { ToolScreenProps } from '../../core/navigation/types';
+import { ToolScreenProps, ToolContextProvider } from '../../core/navigation';
 import { useTheme } from '../../core/theme';
 import { useLibrary } from '../../core/storage';
 import { getToolById, getCategoryName } from '../../registry';
-import { AppHeader, ErrorBoundary, EmptyState } from '../../components';
+import { AppHeader, ErrorBoundary, EmptyState, PermissionWarningBanner } from '../../components';
 
 export const ToolScreen: React.FC<ToolScreenProps> = ({
   route,
@@ -16,7 +16,7 @@ export const ToolScreen: React.FC<ToolScreenProps> = ({
   const { theme } = useTheme();
   const { isFavorite, toggleFavorite, addRecent } = useLibrary();
 
-  const { toolId } = route.params;
+  const { toolId, selectedInput } = route.params;
   const tool = getToolById(toolId);
 
   // Record recent usage when the tool opens
@@ -55,7 +55,7 @@ export const ToolScreen: React.FC<ToolScreenProps> = ({
 
   const categoryName = getCategoryName(tool.categoryId);
   const favorite = isFavorite(tool.id);
-  const ToolComponent = tool.component;
+  const ToolComponent = tool.component as any;
 
   const favoriteAction = (
     <TouchableOpacity
@@ -94,11 +94,19 @@ export const ToolScreen: React.FC<ToolScreenProps> = ({
       />
 
       <View style={styles.toolHost}>
+        {tool.requiresPermission && tool.requiresPermission.length > 0 && (
+          <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+            <PermissionWarningBanner permissions={tool.requiresPermission} />
+          </View>
+        )}
+
         <ErrorBoundary
           fallbackTitle={`"${tool.name}" aracında bir hata oluştu`}
           fallbackMessage="Bu araç çalıştırılırken beklenmeyen bir hata meydana geldi. Diğer araçları kullanmaya devam edebilirsiniz."
         >
-          <ToolComponent />
+          <ToolContextProvider value={selectedInput}>
+            <ToolComponent selectedInput={selectedInput} />
+          </ToolContextProvider>
         </ErrorBoundary>
       </View>
     </View>
